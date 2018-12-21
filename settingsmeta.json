@@ -1,0 +1,70 @@
+{
+    "name": "Sonos Skill",
+    "skillMetadata": {
+        "sections": [
+            {
+                "name": "Sonos Account",
+                "fields": [
+                    {
+                        "type": "label",
+                        "value": "",
+                        "label": "You must connect to your Sonos account<p/>"
+                    },
+                    {
+                        "name": "user",
+                        "type": "text",
+                        "label": "Username",
+                        "value": "",
+                        "placeholder": "Sonos username"
+                    },
+                    {
+                        "name": "password",
+                        "type": "password",
+                        "label": "Password",
+                        "value": ""
+                    },
+                    {
+                        "name": "Sonos",
+                        "type": "oauth",
+                        "value": 1
+                    }
+                ]
+            },
+            {
+                "name": "Sonos Device",
+                "fields": [
+                    {
+                        "type": "label",
+                        "value": "",
+                        "label": "If you want the skill to default to a specific Sonos device set it below. If not set the player on the Mycroft unit will be used<p/>"
+                    },
+                    {
+                        "name": "default_device",
+                        "type": "text",
+                        "label": "Sonos Device",
+                        "value": "",
+                        "placeholder": ""
+                    }
+                ]
+            },
+            {
+                "name": "Audio Ducking",
+                "fields": [
+                    {
+                        "type": "label",
+                        "value": "",
+                        "label": "Pause Sonos when wakeword is detected<p/>"
+                    },
+                    {
+                        "name": "use_ducking",
+                        "type": "checkbox",
+                        "label": "Use audio ducking",
+                        "value": "false",
+                        "placeholder": ""
+                    }
+                ]
+            }
+
+        ]
+    }
+}
