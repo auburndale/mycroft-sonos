@@ -30,47 +30,10 @@ from subprocess import Popen, DEVNULL
 import signal
 from socket import gethostname
 
-import spotipy
-from spotipy.oauth2 import SonosClientCredentials
+import soco
 import random
 
 from mycroft.skills.common_play_skill import CommonPlaySkill, CPSMatchLevel
-
-def get_token(dev_cred):
-    """ Get token with a single retry.
-    Args:
-        dev_cred: OAuth Credentials to fetch
-     """
-    retry = False
-    try:
-        d = DeviceApi().get_oauth_token(dev_cred)
-    except HTTPError as e:
-        if e.response.status_code == 404:  # Token doesn't exist
-            raise
-        if e.response.status_code == 401:  # Device isn't paired
-            raise
-        else:
-            retry = True
-    if retry:
-        d = DeviceApi().get_oauth_token(dev_cred)
-    return d
-
-
-class MycroftSonosCredentials(SonosClientCredentials):
-    """ Credentials object renewing through the Mycroft backend."""
-    def __init__(self, dev_cred):
-        self.dev_cred = dev_cred
-        self.access_token = None
-        self.expiration_time = None
-        self.get_access_token()
-
-    def get_access_token(self):
-        if not self.access_token or time.time() > self.expiration_time:
-            d = get_token(self.dev_cred)
-            self.access_token = d['access_token']
-            # get expiration time from message, if missing assume 1 hour
-            self.expiration_time = d.get('expiration') or time.time() + 3600
-        return self.access_token
 
 
 class SonosConnect(soco.SoCo):
@@ -329,38 +292,8 @@ class SonosSkill(CommonPlaySkill):
         self.on_websettings_changed()
 
     def on_websettings_changed(self):
-        # Only attempt to load credentials if the username has been set
-        # will limit the accesses to the api.
-        if not self.spotify and self.settings.get('user', None):
-            try:
-                self.load_credentials()
-            except Exception:
-                pass
-        if self.spotify:
-            self.cancel_scheduled_event('SonosLogin')
-            if 'user' in self.settings and 'password' in self.settings:
-                if self.process:
-                    self.stop_librespot()
-                self.launch_librespot()
+        pass
 
-    def load_credentials(self):
-        """ Retrieve credentials from the backend and connect to Sonos """
-        try:
-            creds = MycroftSonosCredentials(self.OAUTH_ID)
-            self.spotify = SonosConnect(client_credentials_manager=creds)
-        except HTTPError:
-            LOG.info('Couldn\'t fetch credentials')
-            self.spotify = None
-
-        if self.spotify:
-            # Spotfy connection worked, prepare for usage
-            # TODO: Repeat occasionally on failures?
-            # If not able to authorize, the method will be repeated after 60
-            # seconds
-            self.create_intents()
-            # Should be safe to set device_name here since home has already
-            # been connected
-            self.device_name = DeviceApi().get().get('name')
 
     ######################################################################
     # Handle auto ducking when listener is started.
